@@ -6,6 +6,7 @@ dbUri = r"'mongodb://localhost:27017/'"
 companyBase = r"//table[@id='companyTable']/tbody/tr"
 bigTableXPath = r"%s[100]/td" % companyBase
 codeXPath = r"%s/td[@class='text-center'][2]" % companyBase
+staleElemWait = 5
 nameXPath = r"%s/td/a" % companyBase
 listingDateXPath = r"%s/td[4]" % companyBase
 crawlerUrl = r"https://www.idx.co.id/en-us/listed-companies/company-profiles/"
@@ -39,6 +40,7 @@ directorNameXPath = r"%s/tr[{0}]/td[1]" % directorBaseXPath
 directorPositionXPath = r"%s/tr[{0}]/td[2]" % directorBaseXPath
 
 subsidiaryBaseXpath = r"//table[@id='subsidiaryTable']/tbody"
+subsidiaryOpXPath = r"//div[@id='subsidiaryTable_length']/label/select/option[@value='100']"
 subsidiaryNameXpath = r"%s/tr[{0}]/td[@class='sorting_1']" % subsidiaryBaseXpath
 subsidiaryTypeXpath = r"%s/tr[{0}]/td[2]" % subsidiaryBaseXpath
 subsidiaryTotalXpath = r"%s/tr[{0}]/td[3]" % subsidiaryBaseXpath

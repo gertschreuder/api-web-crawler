@@ -1,4 +1,5 @@
 from datetime import datetime
+from selenium.common.exceptions import NoSuchElementException
 import time
 import constants
 
@@ -6,6 +7,7 @@ import constants
 class CompanyMapper(object):
     def __init__(self, browser):
         self.browser = browser
+        self.staleElemWait = 3
 
     def map(self, code, name, url, date):
         company = {
@@ -19,32 +21,39 @@ class CompanyMapper(object):
 
     def mapDetail(self):
         companyDetail = {
-            "Company Name": self.browser.find_elements_by_xpath(constants.detailCompanyNameXPath).text,
-            "Security Code": self.browser.find_elements_by_xpath(constants.detailSecurityCodeXPath).text,
-            "Office address": self.browser.find_elements_by_xpath(constants.detailAddressXPath).text,
-            "Email Address": self.browser.find_elements_by_xpath(constants.detailEmailAddressXPath).text,
+            "Company Name": self.getElementText(constants.detailCompanyNameXPath),
+            "Security Code": self.getElementText(constants.detailSecurityCodeXPath),
+            "Office address": self.getElementText(constants.detailAddressXPath),
+            "Email Address": self.getElementText(constants.detailEmailAddressXPath),
             "Country": constants.detailCountryXPath,
             "Phone": self.mapPhones(),
             "Fax": self.mapFaxes(),
-            "NPWP": self.browser.find_elements_by_xpath(constants.detailNPWPXPath).text,
-            "Company Website": self.browser.find_elements_by_xpath(constants.detailCompanyWebsiteXPath).text,
-            "IPO Date": self.browser.find_elements_by_xpath(constants.detailIPODateXPath).text,
-            "Board": self.browser.find_elements_by_xpath(constants.detailBoardXPath).text,
-            "Sector": self.browser.find_elements_by_xpath(constants.detailSectorXPath).text,
-            "Sub Sector": self.browser.find_elements_by_xpath(constants.detailSubSectorXPath).text,
-            "Registrar": self.browser.find_elements_by_xpath(constants.detailRegistrarXPath).text,
+            "NPWP": self.getElementText(constants.detailNPWPXPath),
+            "Company Website": self.getElementText(constants.detailCompanyWebsiteXPath),
+            "IPO Date": self.getElementText(constants.detailIPODateXPath),
+            "Board": self.getElementText(constants.detailBoardXPath),
+            "Sector": self.getElementText(constants.detailSectorXPath),
+            "Sub Sector": self.getElementText(constants.detailSubSectorXPath),
+            "Registrar": self.getElementText(constants.detailRegistrarXPath),
             "Corporate Secretary": self.mapCorporateSecretaries(),
             "Director": self.mapDirectors(),
             "Subsidiary": self.mapSubsidiaries()
         }
         return companyDetail
 
+    def getElementText(self, xpath):
+        elem = self.browser.find_elements_by_xpath(xpath)
+        if(len(elem) > 0):
+            return elem[0].text
+        else:
+            return ""
+
     def mapPhones(self):
-        phones = self.browser.find_elements_by_xpath(constants.detailPhoneXPath).text
+        phones = self.getElementText(constants.detailPhoneXPath)
         return phones.split(',')
 
     def mapFaxes(self):
-        faxes = self.browser.find_elements_by_xpath(constants.detailFaxXPath).text
+        faxes = self.getElementText(constants.detailFaxXPath)
         return faxes.split(',')
 
     def mapCorporateSecretaries(self):
@@ -52,14 +61,14 @@ class CompanyMapper(object):
         corporateSecretaries = []
         index = 1
         while do:
-            name = self.browser.find_elements_by_xpath(constants.corpSecNameXPath.replace("{0}", index)).text
-            if name is None:
+            nameElem = self.browser.find_elements_by_xpath(constants.corpSecNameXPath.format(index))
+            if len(nameElem) == 0:
                 do = False
             else:
                 corporateSecretary = {
-                    "name": name,
-                    "email": self.browser.find_elements_by_xpath(constants.corpSecEmailXPath.replace("{0}", index)).text,
-                    "phone": self.browser.find_elements_by_xpath(constants.corpSecPhoneXPath.replace("{0}", index)).text
+                    "name": nameElem[0].text,
+                    "email": self.browser.find_elements_by_xpath(constants.corpSecEmailXPath.format(index))[0].text,
+                    "phone": self.browser.find_elements_by_xpath(constants.corpSecPhoneXPath.format(index))[0].text
                 }
                 corporateSecretaries.append(corporateSecretary)
                 index = index + 1
@@ -70,13 +79,13 @@ class CompanyMapper(object):
         directors = []
         index = 1
         while do:
-            name = self.browser.find_elements_by_xpath(constants.directorNameXPath.replace("{0}", index)).text
-            if name is None:
+            nameElem = self.browser.find_elements_by_xpath(constants.directorNameXPath.format(index))
+            if len(nameElem) == 0:
                 do = False
             else:
                 director = {
-                    "name": name,
-                    "position": self.browser.find_elements_by_xpath(constants.directorPositionXPath.replace("{0}", index)).text
+                    "name": nameElem[0].text,
+                    "position": self.browser.find_elements_by_xpath(constants.directorPositionXPath.format(index))[0].text
                 }
                 directors.append(director)
                 index = index + 1
@@ -87,25 +96,34 @@ class CompanyMapper(object):
         do = True
         subsidiaries = []
         index = 1
+
+        try:            
+            dropdown = self.browser.find_element_by_xpath(constants.subsidiaryOpXPath)
+            dropdown.click()
+            time.sleep(self.staleElemWait)
+        except NoSuchElementException:
+            pass
+
         while do:
-            name = self.browser.find_elements_by_xpath(constants.subsidiaryNameXpath.replace("{0}", index)).text
-            if name is None:
+            nameElem = self.browser.find_elements_by_xpath(constants.subsidiaryNameXpath.format(index))
+            if len(nameElem) == 0:
                 do = False
             else:
                 subsidiary = {
-                    "name": name,
-                    "type": self.browser.find_elements_by_xpath(constants.subsidiaryTypeXpath.replace("{0}", index)).text,
-                    "total asset": self.browser.find_elements_by_xpath(constants.subsidiaryTotalXpath.replace("{0}", index)).text,
-                    "percentage": self.browser.find_elements_by_xpath(constants.subsidiaryPercXpath.replace("{0}", index)).text
+                    "name": nameElem[0].text,
+                    "type": self.browser.find_elements_by_xpath(constants.subsidiaryTypeXpath.format(index))[0].text,
+                    "total asset": self.browser.find_elements_by_xpath(constants.subsidiaryTotalXpath.format(index))[0].text,
+                    "percentage": self.browser.find_elements_by_xpath(constants.subsidiaryPercXpath.format(index))[0].text
                 }
                 subsidiaries.append(subsidiary)
 
-                if index == 10:
+                if index == 100:
                     next = self.browser.find_element_by_id('subsidiaryTable_next')
                     if 'disabled' in next.get_attribute('class'):
                         return subsidiaries
                     next.click()
-                    time.sleep(3)
-
-                index = index + 1
+                    time.sleep(self.staleElemWait)
+                    index = 1
+                else:
+                    index = index + 1
         return subsidiaries

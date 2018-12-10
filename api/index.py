@@ -3,28 +3,20 @@ from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/companies', methods=['GET'])
-def get_tasks():
-    raise NotImplementedError
 
 @app.route('/companies', methods=['GET'])
-def get_companies_by(company_name=None, industry=None, revenue_gte=None):
-    if company_name is not None:
+def get_companies_by(company_name: str=None):
+    if company_name is None:
         get_companies_by_company_name(company_name)
-    elif industry is not None:
-        get_companies_by_industry(industry)
-    elif revenue_gte is not None:
-        get_companies_by_revenue_gte(revenue_gte)
     else:
-        raise NotImplementedError
+        get_companies()
 
-def get_companies_by_company_name(company_name):
+
+def get_companies():
     raise NotImplementedError
 
-def get_companies_by_industry(industry):
-    raise NotImplementedError
 
-def get_companies_by_revenue_gte(revenue_gte):
+def get_companies_by_company_name(company_name: str):
     raise NotImplementedError
 
 if __name__ == '__main__':
