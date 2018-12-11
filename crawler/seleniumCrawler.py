@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,17 +9,25 @@ import time
 from datetime import datetime
 import json
 import os
+from multiprocessing import Pool
 
 
 class SeleniumCrawler(object):
 
     def __init__(self):
-        self.browser = webdriver.Chrome(constants.chromeDriverPath)
+        self.browser = webdriver.Chrome(constants.chromeDriverPath, chrome_options=SeleniumCrawler.getOptions())
         self.browser.get(constants.crawlerUrl)
         self.staleElemWait = 1
         time.sleep(self.staleElemWait)
         self.companyMapper = CompanyMapper(self.browser)
         self.companyUrls = []
+
+    @staticmethod
+    def getOptions():
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        return options
 
     def elapsedTime(self, msg, start, end):
         hours, rem = divmod(end - start, 3600)
@@ -37,23 +46,26 @@ class SeleniumCrawler(object):
                     By.XPATH, constants.bigTableXPath)))
 
             items = self.crawlCompanies([])
-            self.saveJsonDocument(constants.companyIndexPath, items)
+            self.browser.quit()
+            SeleniumCrawler.saveJsonDocument(constants.companyIndexPath, items)
             items = []
-            
+
             self.elapsedTime("Crawled Companies: ", start, time.time())
 
             start = time.time()
-            
-            items = self.crawlCompanyDetails([])
-            self.saveJsonDocument(constants.companyProfilesPath, items)
-            items = []
-            
+
+            print(datetime.now())
+            p = Pool(processes=4)
+            p.map(SeleniumCrawler.crawlCompanyDetails, self.companyUrls)
+            print(datetime.now())
+            # self.saveJsonDocument(constants.companyProfilesPath, items)
+            # items = []
+            #  50min
             self.elapsedTime("Crawled Company Details: ",
                              start, time.time())
         except Exception as ex:
             print(ex)
-
-        self.browser.quit()
+            self.browser.quit()
 
     def crawlCompanies(self, items):
         codes = self.browser.find_elements_by_xpath(constants.codeXPath)
@@ -78,20 +90,22 @@ class SeleniumCrawler(object):
 
         return self.crawlCompanies(items)
 
-    def crawlCompanyDetails(self, companyDetails):
-        for companyUrl in self.companyUrls:
-            print("Loading [%s]." % companyUrl)
-            self.browser.get(companyUrl)
-            time.sleep(self.staleElemWait)
-            self.companyMapper = CompanyMapper(self.browser)
-            companyDetail = self.companyMapper.mapDetail()
-            companyDetails.append(companyDetail)
-        return companyDetails
+    @staticmethod
+    def crawlCompanyDetails(companyUrl):
+        print("Loading [%s]." % companyUrl)
+        driver = webdriver.Chrome(constants.chromeDriverPath, chrome_options=SeleniumCrawler.getOptions())
+        driver.get(companyUrl)
+        time.sleep(1)
+        companyMapper = CompanyMapper(driver)
+        companyDetail = companyMapper.mapDetail()
+        driver.quit()
+        SeleniumCrawler.saveJsonDocument(constants.companyProfilesPath, companyDetail, 'a+')
 
-    def saveJsonDocument(self, path, data):
+    @staticmethod
+    def saveJsonDocument(path, data, m='w'):
         basepath = os.path.dirname(__file__)
         abs_file_path = os.path.abspath(os.path.join(basepath, "..", path))
-        with open(abs_file_path, 'w') as outfile:
+        with open(abs_file_path, m) as outfile:
             json.dump(data, outfile)
 
 if __name__ == '__main__':

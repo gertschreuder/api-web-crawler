@@ -1,6 +1,4 @@
-
-
-chromeDriverPath = r"C:\Program Files\chromedriver_win32\chromedriver.exe"
+chromeDriverPath = r"D:\Program Files\chromedriver_win32\chromedriver.exe"
 opXPath = r"//div[@id='companyTable_length']/label/select/option[@value='100']"
 dbUri = r"'mongodb://localhost:27017/'"
 companyBase = r"//table[@id='companyTable']/tbody/tr"
