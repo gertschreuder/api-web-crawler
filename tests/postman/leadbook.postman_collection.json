@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "0dfc76f4-d0ef-4eea-8984-505a42ff1f45",
+		"name": "leadbook",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "get_companies_by_name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/companies?company_name=Astra Agro Lestari Tbk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"companies"
+					],
+					"query": [
+						{
+							"key": "company_name",
+							"value": "Astra Agro Lestari Tbk"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_companies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/companies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"companies"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

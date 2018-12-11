@@ -1,14 +1,14 @@
-chromeDriverPath = r"D:\Program Files\chromedriver_win32\chromedriver.exe"
+crawlerUrl = r"https://www.idx.co.id/en-us/listed-companies/company-profiles/"
+
 opXPath = r"//div[@id='companyTable_length']/label/select/option[@value='100']"
-dbUri = r"'mongodb://localhost:27017/'"
 companyBase = r"//table[@id='companyTable']/tbody/tr"
 bigTableXPath = r"%s[100]/td" % companyBase
 codeXPath = r"%s/td[@class='text-center'][2]" % companyBase
-staleElemWait = 5
 nameXPath = r"%s/td/a" % companyBase
 listingDateXPath = r"%s/td[4]" % companyBase
-crawlerUrl = r"https://www.idx.co.id/en-us/listed-companies/company-profiles/"
+
 batchSaveExceptionMessage = r"Unable to save data to database."
+
 companyIndexPath = r"data\company_index.json"
 companyProfilesPath = r"data\company_profiles.json"
 

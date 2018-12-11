@@ -3,11 +3,7 @@
 
 ## WIP
 * Crawler Tests
-* API methods
-* Get and Put to document db
-* API tests
 * Package and setup configs
-* Add postman files for testing
 
 ## Prerequisits
 

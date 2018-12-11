@@ -16,7 +16,8 @@ setup(name='leadbook-demo',
       packages=['api', 'crawler'],
       entry_points={
           'console_scripts': [
-              'crawler=crawler.seleniumCrawler:main'
+              'crawler=crawler.index:main',
+              'api=api.index:main'
           ]
       },
       install_requires=''
