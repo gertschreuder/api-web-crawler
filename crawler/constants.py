@@ -1,5 +1,5 @@
 crawlerUrl = r"https://www.idx.co.id/en-us/listed-companies/company-profiles/"
-
+chromeDriverPath = r"C:\Program Files\chromedriver_win32\chromedriver.exe"
 opXPath = r"//div[@id='companyTable_length']/label/select/option[@value='100']"
 companyBase = r"//table[@id='companyTable']/tbody/tr"
 bigTableXPath = r"%s[100]/td" % companyBase
@@ -9,8 +9,8 @@ listingDateXPath = r"%s/td[4]" % companyBase
 
 batchSaveExceptionMessage = r"Unable to save data to database."
 
-companyIndexPath = r"data\company_index.json"
-companyProfilesPath = r"data\company_profiles.json"
+companyIndexPath = r"api\data\company_index.json"
+companyProfilesPath = r"api\data\company_profiles.json"
 
 detailBaseXPath = r"//dd[@class='financial-report-description']"
 detailCompanyNameXPath = r"%s[1]/span[@id='frName']" % detailBaseXPath

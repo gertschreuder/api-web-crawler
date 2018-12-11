@@ -1,26 +1,20 @@
 # coding: utf-8
 import os
 
-CHROME_DRIVER_PATH = r'C:\Program Files\chromedriver_win32\chromedriver.exe'
-
 PRODUCTION = True
 
 DATABASES = {
-    'prod': {
+    'docker': {
         'ENGINE': 'mongodb',
         'NAME': 'leadbook',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': ''
+        'HOST': 'leadbookdb',
+        'PORT': 27017
     },
-    'dev': {
+    'local': {
         'ENGINE': 'mongodb',
         'NAME': 'leadbook',
-        'USER': '',
-        'PASSWORD': '',
         'HOST': 'localhost',
-        'PORT': '27017'
+        'PORT': 27017
     }
 }
 

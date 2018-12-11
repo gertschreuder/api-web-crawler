@@ -4,46 +4,37 @@ import pymongo
 class Repository(object):
 
     def __init__(self, config, logger):
-        
+
         self.config = config
         self.logger = logger
 
         dbConfig = self.config['DATABASES']
         if self.config['PRODUCTION']:
-            host = dbConfig['prod']['HOST']
-            port = dbConfig['prod']['PORT']
-            database_name = dbConfig['prod']['NAME']
+            host = dbConfig['docker']['HOST']
+            port = dbConfig['docker']['PORT']
+            database_name = dbConfig['docker']['NAME']
         else:
-            host = dbConfig['dev']['HOST']
-            port = dbConfig['dev']['PORT']
-            database_name = dbConfig['dev']['NAME']
+            host = dbConfig['local']['HOST']
+            port = dbConfig['local']['PORT']
+            database_name = dbConfig['local']['NAME']
 
-        self.maxWriteBatchSize = 100000
-        self.client = pymongo.MongoClient(host=host, port=port)
+        self.client = pymongo.MongoClient(host, port)
         self.db = self.client[database_name]
         self.collection = self.db['company']
 
-    def batchInsertCompanyData(self, companyData) -> bool:
+    def batchInsertCompanyData(self, companyData):
         try:
-            # TODO: check self.maxWriteBatchSize
-            self.db.company.insert_many(companyData)
+            self.db.company.insert(companyData)
             return True
         except Exception as ex:
             self.logger.error(ex)
             return False
 
-    def getCompanies(self):
+    def getCompanies(self, params):
         try:
-            documents = self.db.company.find()
+            cursor = self.db.company.find(params)
+            documents = [c for c in cursor]
             return documents
         except Exception as ex:
             self.logger.error(ex)
-            return None
-
-    def getCompaniesBy(self, company_name: str):
-        try:
-            documents = self.db.company.find({"company name": company_name})
-            return documents
-        except Exception as ex:
-            self.logger.error(ex)
-            return None
+            return []
