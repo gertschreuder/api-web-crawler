@@ -25,8 +25,11 @@ class Repository(object):
         self.collection = self.db[table]
 
     def batchInsertCompanyData(self, companyData):
+        """
+        Batch insert json collection of objects
+        """
         try:
-            if self.collection.find({})count() > 0:
+            if self.collection.find({}).count() > 0:
                 self.collection.delete_many({})
             self.collection.insert(companyData)
             return True
@@ -35,6 +38,9 @@ class Repository(object):
             return False
 
     def getCompanies(self, params):
+        """
+        Retrieves one or many items from database depending on the inclusion of a filter parameter
+        """
         try:
             cursor = self.collection.find(params)
             documents = [c for c in cursor]

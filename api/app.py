@@ -4,8 +4,6 @@ from flask import Flask, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import default_settings
-import json
-import logging
 import logging.handlers
 from adapter import Adapter
 from util.jsonEncoder import JSONEncoder
@@ -29,22 +27,32 @@ service = Adapter(app.config, app.logger)
 @app.route("/ping")
 @limiter.exempt
 def ping():
+    """
+    Method to test if API is online/available
+    """
     return 'PONG'
 
 
 @app.route('/companies', methods=['GET'])
 def get():
+    """
+    Gets company data
+    """
     company_name = request.args.get('company_name')
     result = service.getCompanies(company_name)
     return JSONEncoder().encode(result.__dict__)
 
 
 def seed_db():
+    """
+    Seeds database from json files on disk
+    """
     return service.seed_database()
+
 
 if __name__ == '__main__':
     success = seed_db()
     if success:
-        app.run(host='0.0.0.0', debug=app.config['PRODUCTION'])  # , ssl_context='adhoc'
+        app.run(host='0.0.0.0', debug=app.config['PRODUCTION'])
     else:
         print('Unable to seed database. Check if connection details are set in default_settings.')

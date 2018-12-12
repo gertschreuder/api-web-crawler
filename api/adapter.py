@@ -12,12 +12,18 @@ class Adapter(object):
         self.database = Repository(config, logger)
 
     def getJsonDocument(self, path):
+        """
+        Retrieves json data from file
+        """
         basepath = os.path.dirname(__file__)
         abs_file_path = os.path.abspath(os.path.join(basepath, path))
         with open(abs_file_path) as data:
             return json.load(data)
 
     def seed_database(self) -> bool:
+        """
+        Batch insert data into database
+        """
         try:
             data = self.getJsonDocument(r'data/company_profiles.json')
             success = self.database.batchInsertCompanyData(data)
@@ -26,14 +32,16 @@ class Adapter(object):
             self.logger.error(ex)
             return False
 
-    def getCompanies(self, name: str=None):
-        companies = []
+    def getCompanies(self, name: str = None):
+        """
+        Retrieves one or many items from database depending on the inclusion of a filter parameter
+        """
         try:
             if name is None:
                 companies = self.database.getCompanies({})
             else:
                 companies = self.database.getCompanies({"Company Name": name})
-            return Result('200', 'successful', companies)
+            return Result(200, 'successful', companies)
         except Exception as ex:
             self.logger.error(ex)
-            return Result('400', 'An Error Occurred.', [])
+            return Result(400, 'An Error Occurred.', [])

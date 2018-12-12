@@ -12,16 +12,22 @@ class CompanyMapper(object):
         self.staleElemWait = 3
 
     def map(self, code, name, url, date):
+        """
+        Maps scrapped company data to json object
+        """
         company = {
-                "ticker symbol": code,
-                "company name": name,
-                "url": url,
-                "listing_date": datetime.strptime(date, '%d %b %Y').strftime('%Y-%m-%d'),
-                "crawled_at": datetime.utcnow().strftime('%Y-%m-%d'),
-            }
+            "ticker symbol": code,
+            "company name": name,
+            "url": url,
+            "listing_date": datetime.strptime(date, '%d %b %Y').strftime('%Y-%m-%d'),
+            "crawled_at": datetime.utcnow().strftime('%Y-%m-%d'),
+        }
         return company
 
     def mapDetail(self):
+        """
+        Maps scrapped company detail data to json object
+        """
         companyDetail = {
             "Company Name": self.getElementText(constants.detailCompanyNameXPath),
             "Security Code": self.getElementText(constants.detailSecurityCodeXPath),
@@ -32,7 +38,7 @@ class CompanyMapper(object):
             "Fax": self.mapFaxes(),
             "NPWP": self.getElementText(constants.detailNPWPXPath),
             "Company Website": self.getElementText(constants.detailCompanyWebsiteXPath),
-            "IPO Date": self.getElementText(constants.detailIPODateXPath),
+            "IPO Date": self.mapDate(self.getElementText(constants.detailIPODateXPath)),
             "Board": self.getElementText(constants.detailBoardXPath),
             "Sector": self.getElementText(constants.detailSectorXPath),
             "Sub Sector": self.getElementText(constants.detailSubSectorXPath),
@@ -44,21 +50,41 @@ class CompanyMapper(object):
         return companyDetail
 
     def getElementText(self, xpath):
+        """
+        Get text from element helper
+        """
         elem = self.browser.find_elements_by_xpath(xpath)
-        if(len(elem) > 0):
+        if len(elem) > 0:
             return elem[0].text
         else:
             return ""
 
+    def mapDate(self, date):
+        """
+        Map date to formatted value
+        """
+        if not date:
+            return date
+        return datetime.strptime(date, '%d %b %Y').strftime('%Y-%m-%d')
+
     def mapPhones(self):
+        """
+        Maps collection of phone number data to json array
+        """
         phones = self.getElementText(constants.detailPhoneXPath)
         return phones.split(',')
 
     def mapFaxes(self):
+        """
+        Maps collection of fax number data to json array
+        """
         faxes = self.getElementText(constants.detailFaxXPath)
         return faxes.split(',')
 
     def mapCorporateSecretaries(self):
+        """
+        Maps collection of corporate Secretary data to json array
+        """
         do = True
         corporateSecretaries = []
         index = 1
@@ -77,6 +103,9 @@ class CompanyMapper(object):
         return corporateSecretaries
 
     def mapDirectors(self):
+        """
+        Maps collection of director data to json array
+        """
         do = True
         directors = []
         index = 1
@@ -95,11 +124,14 @@ class CompanyMapper(object):
         return directors
 
     def mapSubsidiaries(self):
+        """
+        Maps collection of subsidiaries data to json array
+        """
         do = True
         subsidiaries = []
         index = 1
 
-        try:            
+        try:
             dropdown = self.browser.find_element_by_xpath(constants.subsidiaryOpXPath)
             dropdown.click()
             time.sleep(self.staleElemWait)
@@ -120,10 +152,10 @@ class CompanyMapper(object):
                 subsidiaries.append(subsidiary)
 
                 if index == 100:
-                    next = self.browser.find_element_by_id('subsidiaryTable_next')
-                    if 'disabled' in next.get_attribute('class'):
+                    nextElem = self.browser.find_element_by_id('subsidiaryTable_next')
+                    if 'disabled' in nextElem.get_attribute('class'):
                         return subsidiaries
-                    next.click()
+                    nextElem.click()
                     time.sleep(self.staleElemWait)
                     index = 1
                 else:
