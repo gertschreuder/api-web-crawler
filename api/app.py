@@ -1,4 +1,5 @@
 #!flask/bin/python
+# pylint: disable=E0401,E0611,E1101
 from flask import Flask, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -7,14 +8,13 @@ import json
 import logging
 import logging.handlers
 from adapter import Adapter
-from jsonEncoder import JSONEncoder
+from util.jsonEncoder import JSONEncoder
 
 
 app = Flask(__name__)
 app.config.from_object(default_settings)
 handler = logging.handlers.RotatingFileHandler('app.log', maxBytes=1024 * 1024)
 handler.setLevel(logging.INFO)
-# pylint: disable=E1101
 app.logger.addHandler(handler)
 
 limiter = Limiter(

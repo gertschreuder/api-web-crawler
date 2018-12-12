@@ -1,10 +1,11 @@
+# pylint: disable=E0401,E0611
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import constants
-from companyMapper import CompanyMapper
+import util.constants as constants
+from util.companyMapper import CompanyMapper
 import time
 from datetime import datetime
 import json
@@ -22,13 +23,6 @@ class SeleniumCrawler(object):
         self.companyMapper = CompanyMapper(self.browser)
         self.companyUrls = []
 
-    @staticmethod
-    def getOptions():
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        return options
-
     def run(self):
         try:
             dropdown = self.browser.find_element_by_xpath(constants.opXPath)
@@ -42,8 +36,10 @@ class SeleniumCrawler(object):
             SeleniumCrawler.saveJsonDocument(constants.companyIndexPath, items)
             items = []
 
+            SeleniumCrawler.fileWriter(constants.companyProfilesPath, '[')
             p = Pool(processes=6)
             p.map(SeleniumCrawler.crawlCompanyDetails, self.companyUrls)
+            SeleniumCrawler.fileWriter(constants.companyProfilesPath, ']')
 
         except Exception as ex:
             print(ex)
@@ -73,6 +69,13 @@ class SeleniumCrawler(object):
         return self.crawlCompanies(items)
 
     @staticmethod
+    def getOptions():
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        return options
+
+    @staticmethod
     def crawlCompanyDetails(companyUrl):
         print("Loading [%s]." % companyUrl)
         driver = webdriver.Chrome(constants.chromeDriverPath, chrome_options=SeleniumCrawler.getOptions())
@@ -81,14 +84,26 @@ class SeleniumCrawler(object):
         companyMapper = CompanyMapper(driver)
         companyDetail = companyMapper.mapDetail()
         driver.quit()
-        SeleniumCrawler.saveJsonDocument(constants.companyProfilesPath, companyDetail, 'a+')
+        SeleniumCrawler.saveJsonDocument(constants.companyProfilesPath, companyDetail, True, 'a+')
 
     @staticmethod
-    def saveJsonDocument(path, data, m='w'):
+    def saveJsonDocument(path, data, isMultiPro=False, m='w+'):
+        d = json.dumps(data, indent=4, sort_keys=True)
+        if isMultiPro:
+            d = d + ','
+        SeleniumCrawler.fileWriter(path, d, m)
+
+    @staticmethod
+    def getFilePath(path):
         basepath = os.path.dirname(__file__)
         abs_file_path = os.path.abspath(os.path.join(basepath, "..", path))
-        with open(abs_file_path, m) as outfile:
-            json.dump(data, outfile)
+        return abs_file_path
+
+    @staticmethod
+    def fileWriter(path, data, m='a+'):
+        abs_file_path = SeleniumCrawler.getFilePath(path)
+        f = open(abs_file_path, m)
+        f.write(data)
 
 if __name__ == '__main__':
     a = SeleniumCrawler()

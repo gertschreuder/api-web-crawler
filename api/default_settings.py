@@ -8,13 +8,15 @@ DATABASES = {
         'ENGINE': 'mongodb',
         'NAME': 'leadbook',
         'HOST': 'leadbookdb',
-        'PORT': 27017
+        'PORT': 27017,
+        'TABLE': 'company'
     },
     'local': {
         'ENGINE': 'mongodb',
         'NAME': 'leadbook',
         'HOST': 'localhost',
-        'PORT': 27017
+        'PORT': 27017,
+        'TABLE': 'company'
     }
 }
 

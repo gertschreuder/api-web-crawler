@@ -1,7 +1,9 @@
+
+# pylint: disable=E0401,E0611
 from datetime import datetime
 from selenium.common.exceptions import NoSuchElementException
 import time
-import constants
+import util.constants as constants
 
 
 class CompanyMapper(object):

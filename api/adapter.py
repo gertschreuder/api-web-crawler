@@ -1,6 +1,6 @@
-# pylint: disable=E0401
-from repository import Repository
-from result import Result
+# pylint: disable=E0401,E0611
+from data.repository import Repository
+from util.result import Result
 import json
 import os
 

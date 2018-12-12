@@ -13,18 +13,22 @@ class Repository(object):
             host = dbConfig['docker']['HOST']
             port = dbConfig['docker']['PORT']
             database_name = dbConfig['docker']['NAME']
+            table = dbConfig['docker']['TABLE']
         else:
             host = dbConfig['local']['HOST']
             port = dbConfig['local']['PORT']
             database_name = dbConfig['local']['NAME']
+            table = dbConfig['local']['TABLE']
 
         self.client = pymongo.MongoClient(host, port)
         self.db = self.client[database_name]
-        self.collection = self.db['company']
+        self.collection = self.db[table]
 
     def batchInsertCompanyData(self, companyData):
         try:
-            self.db.company.insert(companyData)
+            if self.collection.find({})count() > 0:
+                self.collection.delete_many({})
+            self.collection.insert(companyData)
             return True
         except Exception as ex:
             self.logger.error(ex)
@@ -32,7 +36,7 @@ class Repository(object):
 
     def getCompanies(self, params):
         try:
-            cursor = self.db.company.find(params)
+            cursor = self.collection.find(params)
             documents = [c for c in cursor]
             return documents
         except Exception as ex:
